@@ -1,0 +1,17 @@
+/* Add your custom styles here */
+.error-message {
+    color: red;
+}
+.margin-left{
+    margin-left: auto;
+}
+.subscribe-btn{
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+a:hover{
+    cursor: pointer;
+}
+.font{
+    font-size: 16px;
+}
