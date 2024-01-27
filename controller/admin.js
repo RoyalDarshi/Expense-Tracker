@@ -64,7 +64,7 @@ module.exports.forgotPassword=async (req,res)=>{
     const userId=decodeToken(req.body.userId);
     const defaultClient = SibApiV3Sdk.ApiClient.instance
     const resetToken = uuid.v4();
-    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+    const resetLink = `http://54.253.5.172:3000/reset-password/${resetToken}`;
     let apiKey = defaultClient.authentications['api-key'];
     apiKey.apiKey = process.env.BREVO_API_KEY;
     await ForgotPassword.create({id:resetToken,isActive:true,userId:userId}).then(()=>{
