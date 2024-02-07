@@ -4,7 +4,7 @@ async function createExpense(){
     const category=document.getElementById("expenseCategory");
     const userId=localStorage.getItem("userId");
     const data={money:money.value,description:desc.value,category:category.value,userId:userId};
-    await axios.post("http://54.253.5.17254.253.5.172:3000/create-expense",data).then(res=>{
+    await axios.post("http://localhost:3000/create-expense",data).then(res=>{
         money.value=""
         desc.value=""
         category.value=""
@@ -14,12 +14,12 @@ async function createExpense(){
 
 async function getAllData(){
     const userId=localStorage.getItem("userId");
-    await axios.get(`http://54.253.5.172:3000/get-expenses/${userId}`,{headers:{
+    await axios.get(`http://localhost:3000/get-expenses/${userId}`,{headers:{
             "authorization":rowNumber
         }}).then(res=>{
         createRow(res.data)
     })
-    await axios.get("http://54.253.5.172:3000/find-user",{headers:{
+    await axios.get("http://localhost:3000/find-user",{headers:{
         "authorization":userId
         }}).then(res=>{
             if(res.data.isPremiumUser){
@@ -105,7 +105,7 @@ function createPagination(data){
 }
 async function getPageData(page){
     const userId=localStorage.getItem("userId");
-    await axios.get(`http://54.253.5.172:3000/get-expenses/${userId}?page=${page}`,{headers:{
+    await axios.get(`http://localhost:3000/get-expenses/${userId}?page=${page}`,{headers:{
             "authorization":rowNumber
         }}).then(res=>{
         document.getElementById("expenseTableBody").innerHTML="";
@@ -123,7 +123,7 @@ async function deleteData(id){
     const money=tRow.children[0].innerText;
     const userId=localStorage.getItem("userId");
     const data={money:money,userId:userId}
-    await axios.post(`http://54.253.5.172:3000/delete-expense/${id}`,data).then(res=>{
+    await axios.post(`http://localhost:3000/delete-expense/${id}`,data).then(res=>{
         const tBody=document.getElementById("expenseTableBody");
         tBody.removeChild(tRow);
         if(res.data.removePage){
@@ -140,12 +140,12 @@ function showNotPremium() {
 
 async function subscribe(){
     const userId=localStorage.getItem("userId");
-    const res=await axios.get("http://54.253.5.172:3000/purchase/purchase-premium",{headers:{"authorization":userId}})
+    const res=await axios.get("http://localhost:3000/purchase/purchase-premium",{headers:{"authorization":userId}})
     const options={
         "key":res.data.key_id,
         "order_id":res.data.id,
         "handler":async (res)=>{
-            await axios.post("http://54.253.5.172:3000/purchase/update-payment-status",{
+            await axios.post("http://localhost:3000/purchase/update-payment-status",{
                 orderId:options.order_id,
                 paymentId: res.razorpay_payment_id
             },{headers: {"authorization":userId}}).then(()=>{
@@ -158,7 +158,7 @@ async function subscribe(){
         },
         "modal": {
             "ondismiss":async function(){
-                await axios.post("http://54.253.5.172:3000/purchase/payment-failed",{
+                await axios.post("http://localhost:3000/purchase/payment-failed",{
                     orderId:options.order_id,
                     status:"FAILED"
                 })
@@ -168,7 +168,7 @@ async function subscribe(){
     const razorpay=new Razorpay(options);
     razorpay.open()
     razorpay.on("payment.failed",async()=>{
-        await axios.post("http://54.253.5.172:3000/purchase/payment-failed",{
+        await axios.post("http://localhost:3000/purchase/payment-failed",{
             orderId:options.order_id,
             status: "FAILED"
         })
@@ -177,7 +177,7 @@ async function subscribe(){
 }
 
 async function showLeaderBoard(){
-    await axios.get("http://54.253.5.172:3000/premium/leaderboard").then(res=>{
+    await axios.get("http://localhost:3000/premium/leaderboard").then(res=>{
         const mainBody=document.getElementById("mainBody");
         mainBody.innerHTML=`<div id="leaderboardTable">
                 <h3 class="mt-5 text-center">Leaderboard</h3>
@@ -311,11 +311,11 @@ function downloadData() {
 }
 
 async function downloadExpense() {
-    const data=await axios.get("http://54.253.5.172:3000/premium/download",{
+    const data=await axios.get("http://localhost:3000/premium/download",{
         headers:{"authorization":localStorage.getItem("userId")}
     })
    window.location=data.data.url;
-    const downloadData=await axios.get("http://54.253.5.172:3000/premium/prevDownload",{
+    const downloadData=await axios.get("http://localhost:3000/premium/prevDownload",{
         headers:{"authorization":localStorage.getItem("userId")}})
     const mainBody=document.getElementById("mainBody");
     mainBody.innerHTML=`

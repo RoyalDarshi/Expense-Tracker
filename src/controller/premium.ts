@@ -1,11 +1,12 @@
-const jwt=require("jsonwebtoken");
-const AWS=require("aws-sdk");
+import jwt from "jsonwebtoken";
+import AWS from "aws-sdk";
 
-const Expense=require("../model/expense");
-const User=require("../model/user");
-const FileUrl=require("../model/fileUrl")
+import Expense from "../model/expense";
+import User from "../model/user";
+import FileUrl from "../model/fileUrl";
+import { Model } from "sequelize";
 
-module.exports.leaderboard=async (req,res)=>{
+const leaderboard = async (req: any, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: void | Model<any, any>[]): void; new(): any; }; }; })=>{
     const user=await User.findAll({
         attributes:["name","totalExpense"],
         order:[["totalExpense","DESC"]]
@@ -16,7 +17,7 @@ module.exports.leaderboard=async (req,res)=>{
     res.status(201).json(user);
 }
 
-module.exports.downloadExpense=async (req,res)=>{
+const downloadExpense=async (req: { headers: { authorization: string; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { url: unknown; success: boolean; }): void; new(): any; }; }; })=>{
     const userId=jwt.decode(req.headers.authorization);
     const expenses=await Expense.findAll({where:{userId:userId}})
     const stringifyExpense=JSON.stringify(expenses);
@@ -25,7 +26,7 @@ module.exports.downloadExpense=async (req,res)=>{
     await FileUrl.create({url:fileUrl,name:fileName,userId:userId})
     res.status(201).json({url: fileUrl,success:true});
 }
-function uploadToS3(fileName,data){
+function uploadToS3(fileName: string, data: string){
     const BUCKET_NAME=process.env.BUCKET_NAME;
     const USER_KEY=process.env.IAM_USER_KEY;
     const USER_SECRET_KEY=process.env.IAM_USER_SECRET_KEY;
@@ -40,7 +41,7 @@ function uploadToS3(fileName,data){
             ACL:"public-read"
         }
         return new Promise((resolve,reject)=>{
-            s3Bucket.upload(params,(err, data)=>{
+            s3Bucket.upload(params as any,(err: any, data: { Location: unknown; })=>{
                 if(err){
                     reject(err)
                 }else{
@@ -50,10 +51,16 @@ function uploadToS3(fileName,data){
         })
 }
 
-module.exports.prevDownloads=async (req,res)=>{
+const prevDownloads=async (req: { headers: { authorization: string; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: Model<any, any>[]): void; new(): any; }; }; })=>{
     const userId=jwt.decode(req.headers.authorization)
     await FileUrl.findAll({where:{userId:userId}}).then(data=>{
         res.status(201).json(data);
     })
 
 }
+const premiumController={
+    prevDownloads,
+    leaderboard,
+    downloadExpense,
+}
+export default premiumController;

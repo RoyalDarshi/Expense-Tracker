@@ -19,7 +19,7 @@ async function signUpData(){
 
     if(validateForm(name.value,email.value,password.value,confirmPassword.value)){
         const data={name:name.value,email:email.value,password:password.value}
-        await axios.post("http://54.253.5.172:3000/user-signup",data).then(res=>{
+        await axios.post("http://localhost:3000/user-signup",data).then(res=>{
             if(res.data.message){
                 document.getElementById("errorMessages").innerText=res.data.message;
             }
@@ -41,7 +41,7 @@ async function login(){
     const email=document.getElementById("loginEmail");
     const password=document.getElementById("loginPassword");
     const data={email:email.value,password:password.value};
-    await axios.post("http://54.253.5.172:3000/user-login",data).then((res)=>{
+    await axios.post("http://localhost:3000/user-login",data).then((res)=>{
         errMessage.innerText="";
         window.location.href="../html/expense.html"
         localStorage.setItem("userId",res.data.id);

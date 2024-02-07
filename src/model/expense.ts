@@ -1,8 +1,8 @@
-const Sequelize=require("sequelize");
+import Sequelize from "sequelize";
 
-const sequelize = require("../util/database");
+import sequelize from "../util/database";
 
-const expense=sequelize.define("expense",{
+const Expense=sequelize.define("expense",{
     id:{
         type:Sequelize.INTEGER,
         autoIncrement:true,
@@ -23,4 +23,4 @@ const expense=sequelize.define("expense",{
     }
 });
 
-module.exports=expense;
+export default Expense;
