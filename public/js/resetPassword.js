@@ -8,7 +8,7 @@ async function resetPassword() {
     else{
         const userId=localStorage.getItem("userId");
         const data={userId:userId,password:pass.value};
-        await axios.post("http://54.253.5.172:3000/reset-password",data).then(res=>{
+        await axios.post("http://localhost:3000/reset-password",data).then(res=>{
             if(res.data.msg){
                 alert(res.data.msg)
                 window.location.href="../html/login.html";

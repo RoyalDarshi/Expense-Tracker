@@ -1,23 +1,23 @@
-const path=require("path");
-const fs=require("fs");
+import path from "path";
+import fs from "fs";
 
-const express=require("express");
-const bodyParser=require("body-parser");
-const cors=require("cors");
+import express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
 require("dotenv").config()
-const helmet=require("helmet")
-const morgan=require("morgan")
+import helmet from "helmet";
+import morgan from "morgan";
 
-const db=require("./util/database");
-const adminRouter=require("./routes/admin");
-const purchaseRouter=require("./routes/purchase");
-const premiumRouter=require("./routes/premium")
-const errorController=require("./controller/error");
-const User=require("./model/user");
-const Expense=require("./model/expense");
-const Order=require("./model/order");
-const ForgotPassword=require("./model/forgotPasswordRequest");
-const FileUrl=require("./model/fileUrl");
+import db from "./util/database";
+import adminRouter from "./routes/admin";
+import purchaseRouter from "./routes/purchase";
+import premiumRouter from "./routes/premium";
+import {pageNotFound} from "./controller/error";
+import User from "./model/user";
+import Expense from "./model/expense";
+import Order from "./model/order";
+import ForgotPassword from "./model/forgotPasswordRequest";
+import FileUrl from "./model/fileUrl";
 
 const app=express();
 
@@ -34,7 +34,7 @@ app.use(bodyParser.json());
 
 //app.use(bodyParser.urlencoded({extend:true}))
 
-app.use(express.static(path.join(__dirname,"public")));
+app.use(express.static(path.join(__dirname,"../public")));
 
 app.use(adminRouter);
 
@@ -42,7 +42,7 @@ app.use("/purchase",purchaseRouter);
 
 app.use("/premium",premiumRouter);
 
-app.use(errorController.pageNotFound);
+app.use(pageNotFound);
 
 Expense.belongsTo(User,{constraints:true,onDelete:"CASCADE"});
 User.hasMany(Expense);

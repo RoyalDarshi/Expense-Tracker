@@ -1,6 +1,6 @@
-const Sequelize=require("sequelize");
+import Sequelize from "sequelize";
 
-const sequelize = require("../util/database");
+import sequelize from "../util/database";
 
 const Order=sequelize.define("order",{
     id:{
@@ -20,4 +20,4 @@ const Order=sequelize.define("order",{
     }
 });
 
-module.exports=Order;
+export default Order;

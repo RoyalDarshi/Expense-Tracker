@@ -1,8 +1,8 @@
-const Sequelize=require("sequelize");
+import Sequelize from "sequelize";
 
-const sequelize = require("../util/database");
+import sequelize from "../util/database";
 
-const Order=sequelize.define("fileUrl",{
+const FileUrl=sequelize.define("fileUrl",{
     id:{
         type:Sequelize.INTEGER,
         allowNull:false,
@@ -17,4 +17,4 @@ const Order=sequelize.define("fileUrl",{
     }
 });
 
-module.exports=Order;
+export default FileUrl;
