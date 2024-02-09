@@ -327,7 +327,8 @@ const adminController={
     getResetPassword,
     isPremiumUser,
     postResetPassword,
-    weeklyExpense
+    weeklyExpense,
+    decodeToken
 }
 
 export default adminController;

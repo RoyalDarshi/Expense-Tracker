@@ -215,12 +215,12 @@ async function showExpense(){
 
     <!-- Filter Buttons -->
     <div class="btn-group mb-3">
-        <button class="btn btn-primary filter-btn active" data-filter="all">All</button>
-        <button class="btn btn-secondary filter-btn" data-filter="daily">Daily</button>
-        <button class="btn btn-secondary filter-btn" data-filter="weekly">Weekly</button>
-        <button class="btn btn-secondary filter-btn" data-filter="monthly">Monthly</button>
+<!--        <button class="btn btn-primary filter-btn active" data-filter="all">All</button>-->
+        <button class="btn btn-secondary" id="daily" onclick="dailyBtnClicked()"  data-filter="daily">Daily</button>
+<!--        <button class="btn btn-secondary filter-btn" data-filter="weekly">Weekly</button>-->
+        <button class="btn btn-secondary" id="monthly" onclick="monthlyBtnClicked()" data-filter="monthly">Monthly</button>
     </div>
-
+    <div id="calender"></div>
     <!-- Responsive Table Container -->
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
@@ -228,8 +228,7 @@ async function showExpense(){
             <tr>
                 <th scope="col">Date</th>
                 <th scope="col">Description</th>
-                <th scope="col">Category</th>
-                <th scope="col">Type</th>
+                <th scope="col">Category</th>         
                 <th scope="col">Amount</th>
             </tr>
             </thead>
@@ -241,28 +240,80 @@ async function showExpense(){
 
 </div>
     `
-    renderTable('all')
 }
-const data = [
-    { date: '2022-01-01', description: 'Groceries', category: 'Food', type: 'Expense', amount: 50.00 },
-    { date: '2022-01-05', description: 'Salary', category: 'Income', type: 'Income', amount: 1000.00 },
-    // Add more data as needed
-];
+function showDailyBtnActive(){
+    const dailyBtn=document.getElementById("daily");
+    const monthlyBtn=document.getElementById("monthly")
+    dailyBtn.classList.add("active");
+    monthlyBtn.classList.remove("active")
+}
+function showMonthlyBtnActive(){
+    const dailyBtn=document.getElementById("daily");
+    const monthlyBtn=document.getElementById("monthly")
+    dailyBtn.classList.remove("active");
+    monthlyBtn.classList.add("active")
+}
+function dailyBtnClicked(){
+    showDailyBtnActive()
+    const div=document.getElementById("calender");
+    div.innerHTML=`
+  <div class="row">
+    <div>
+      <h2>Select a Date</h2>
+      <input type="date" onchange="getDailyExpense()" id="datepicker" class="form-control mb-2">
+    </div>
+  </div>
+`
+}
+
+function monthlyBtnClicked(){
+    showMonthlyBtnActive();
+    const div=document.getElementById("calender");
+    div.innerHTML=`
+  <div class="row">
+    <div class="">
+      <h2>Select a Month</h2>
+      <input type="month" onchange="getMonthlyExpense()" id="monthPicker" class="form-control mb-2">
+    </div>
+  </div>
+`
+}
+async function getDailyExpense(){
+    const id=localStorage.getItem("userId")
+    await axios.post("http://localhost:3000/premium/dailyReport",{
+        id:id,
+        date:document.getElementById("datepicker").value
+    }).then((res)=>{
+        renderTable(res.data)
+    })
+}
+
+async function getMonthlyExpense(){
+    const id=localStorage.getItem("userId")
+    let month=document.getElementById("monthPicker").value.split("-")[1];
+    console.log(month);
+    const data={
+        id:id,
+        month:month
+    }
+    await axios.post("http://localhost:3000/premium/monthlyReport",data).then((res)=>{
+        renderTable(res.data)
+    })
+}
 
 // Function to render the table based on the selected filter
-function renderTable(filter) {
-    const filteredData = (filter === 'all') ? data : filterData(filter);
+function renderTable(data) {
+    const filteredData = data
     const tableBody = document.getElementById('expenseTableBody');
     tableBody.innerHTML = '';
 
     filteredData.forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
-                <td>${item.date}</td>
+                <td>${item.createdAt}</td>
                 <td>${item.description}</td>
                 <td>${item.category}</td>
-                <td>${item.type}</td>
-                <td>${item.amount.toFixed(2)}</td>
+                <td>${item.expense}</td>
             `;
         tableBody.appendChild(row);
     });
@@ -296,19 +347,19 @@ filterButtons.forEach(button => {
 });
 
 // Function to download data as CSV
-function downloadData() {
-    const filteredData = filterData('all');
-    const csvContent = "data:text/csv;charset=utf-8,"
-        + "Date,Description,Category,Type,Amount\n"
-        + filteredData.map(item => `${item.date},${item.description},${item.category},${item.type},${item.amount}`).join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "expense_income_data.csv");
-    document.body.appendChild(link);
-    link.click();
-}
+// function downloadData() {
+//     const filteredData = filterData('all');
+//     const csvContent = "data:text/csv;charset=utf-8,"
+//         + "Date,Description,Category,Type,Amount\n"
+//         + filteredData.map(item => `${item.date},${item.description},${item.category},${item.type},${item.amount}`).join("\n");
+//
+//     const encodedUri = encodeURI(csvContent);
+//     const link = document.createElement("a");
+//     link.setAttribute("href", encodedUri);
+//     link.setAttribute("download", "expense_income_data.csv");
+//     document.body.appendChild(link);
+//     link.click();
+// }
 
 async function downloadExpense() {
     const data=await axios.get("http://localhost:3000/premium/download",{

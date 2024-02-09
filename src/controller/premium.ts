@@ -4,7 +4,9 @@ import AWS from "aws-sdk";
 import Expense from "../model/expense";
 import User from "../model/user";
 import FileUrl from "../model/fileUrl";
-import { Model } from "sequelize";
+import {Model, Op} from "sequelize";
+import adminController from "./admin";
+import Db from "../util/database"
 
 const leaderboard = async (req: any, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: void | Model<any, any>[]): void; new(): any; }; }; })=>{
     const user=await User.findAll({
@@ -51,6 +53,46 @@ function uploadToS3(fileName: string, data: string){
         })
 }
 
+const dailyReport=async (req:any,res:any)=>{
+    const dateWithTime = new Date(req.body.date); // Current date and time
+    console.log(dateWithTime)
+    let date = dateWithTime.getFullYear()+"-";
+    if(dateWithTime.getMonth()<10){
+        date+=0;
+    }
+    date+= (dateWithTime.getMonth()+1)+"-"
+    console.log(dateWithTime.getDate())
+    if( dateWithTime.getDate()<10){
+        date+= 0;
+    }
+    date+=dateWithTime.getDate()
+    const id=adminController.decodeToken(req.body.id);
+    const expense = await Expense.findAll({
+        where: {
+            userId:id,
+            createdAt: {
+                [Op.startsWith]: date
+            }
+        }
+    });
+    res.status(201).json(expense);
+}
+
+const monthlyReport=async (req:any,res:any)=>{
+    const id=adminController.decodeToken(req.body.id)
+    const desiredMonth = req.body.month; // Example: July
+    console.log(desiredMonth)
+    await Expense.findAll({
+        where: {
+            userId: id, // Check for specific userId
+            createdAt: Db.where(Db.fn('MONTH', Db.col('createdAt')), desiredMonth)
+        }
+    }).then(data=>{
+        res.status(201).json(data)
+    });
+
+}
+
 const prevDownloads=async (req: { headers: { authorization: string; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: Model<any, any>[]): void; new(): any; }; }; })=>{
     const userId=jwt.decode(req.headers.authorization)
     await FileUrl.findAll({where:{userId:userId}}).then(data=>{
@@ -62,5 +104,7 @@ const premiumController={
     prevDownloads,
     leaderboard,
     downloadExpense,
+    dailyReport,
+    monthlyReport
 }
 export default premiumController;
