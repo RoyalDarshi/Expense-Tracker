@@ -1,0 +1,46 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const express_1 = __importDefault(require("express"));
+const body_parser_1 = __importDefault(require("body-parser"));
+const cors_1 = __importDefault(require("cors"));
+require("dotenv").config();
+const helmet_1 = __importDefault(require("helmet"));
+const morgan_1 = __importDefault(require("morgan"));
+const database_1 = __importDefault(require("./util/database"));
+const admin_1 = __importDefault(require("./routes/admin"));
+const purchase_1 = __importDefault(require("./routes/purchase"));
+const premium_1 = __importDefault(require("./routes/premium"));
+const error_1 = require("./controller/error");
+const user_1 = __importDefault(require("./model/user"));
+const expense_1 = __importDefault(require("./model/expense"));
+const order_1 = __importDefault(require("./model/order"));
+const forgotPasswordRequest_1 = __importDefault(require("./model/forgotPasswordRequest"));
+const fileUrl_1 = __importDefault(require("./model/fileUrl"));
+const app = (0, express_1.default)();
+const accessLogStream = fs_1.default.createWriteStream(path_1.default.join(__dirname, 'access.log'), { flags: 'a' });
+app.use((0, cors_1.default)());
+app.use((0, helmet_1.default)({ contentSecurityPolicy: false, }));
+app.use((0, morgan_1.default)("combined", { stream: accessLogStream }));
+app.use(body_parser_1.default.json());
+//app.use(bodyParser.urlencoded({extend:true}))
+app.use(express_1.default.static(path_1.default.join(__dirname, "../public")));
+app.use(admin_1.default);
+app.use("/purchase", purchase_1.default);
+app.use("/premium", premium_1.default);
+app.use(error_1.pageNotFound);
+expense_1.default.belongsTo(user_1.default, { constraints: true, onDelete: "CASCADE" });
+user_1.default.hasMany(expense_1.default);
+order_1.default.belongsTo(user_1.default, { constraints: true, onDelete: "CASCADE" });
+user_1.default.hasMany(order_1.default);
+forgotPasswordRequest_1.default.belongsTo(user_1.default, { constraints: true, onDelete: "CASCADE" });
+user_1.default.hasMany(forgotPasswordRequest_1.default);
+fileUrl_1.default.belongsTo(user_1.default, { constraints: true, onDelete: "CASCADE" });
+user_1.default.hasMany(fileUrl_1.default);
+database_1.default.sync().then(() => {
+    app.listen(process.env.PORT_NUMBER);
+});

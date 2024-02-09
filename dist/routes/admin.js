@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const admin_1 = __importDefault(require("../controller/admin"));
+const adminRouter = (0, express_1.Router)();
+adminRouter.get("/", admin_1.default.sendFile);
+adminRouter.post("/user-signup", admin_1.default.createUser);
+adminRouter.post("/user-login", admin_1.default.loginUser);
+adminRouter.post("/forgot-password", admin_1.default.forgotPassword);
+adminRouter.get("/reset-password/:resetToken", admin_1.default.getResetPassword);
+adminRouter.post("/reset-password", admin_1.default.postResetPassword);
+adminRouter.get("/find-user", admin_1.default.isPremiumUser);
+adminRouter.post("/create-expense", admin_1.default.createExpense);
+adminRouter.get("/weekly-expense", admin_1.default.weeklyExpense);
+adminRouter.get("/get-expenses/:userId", admin_1.default.getAllExpenses);
+adminRouter.post("/delete-expense/:id", admin_1.default.deleteExpense);
+exports.default = adminRouter;
